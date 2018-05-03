@@ -39,7 +39,12 @@
   </transition>
 </template>
 <script>
-export default {}
+  import Scroll from 'base/scroll/scroll'
+  export default {
+    components: {
+      Scroll
+    }
+  }
 </script>
 <style lang="scss">
   @import "../../common/scss/variable.scss";
