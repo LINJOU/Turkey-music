@@ -70,9 +70,7 @@ export default {
   },
   methods: {
     back () {
-      this.$router.push({
-        path: '/singer'
-      })
+      this.$router.go(-1)
     },
     scroll (pos) {
       this.scrollY = pos.y

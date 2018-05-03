@@ -6,6 +6,7 @@
   </div>
 </template>
 <script>
+import { debounce } from 'common/js/util'
 export default {
   data () {
     return {
@@ -25,6 +26,7 @@ export default {
     setQuery (query) {
       this.query = query
     },
+    // 焦点处理(移开焦点)
     blur () {
       this.$refs.query.blur()
     }
@@ -32,13 +34,14 @@ export default {
   created () {
     // 将query暴露给外面组件
     // 与watch () 一样
-    this.$watch('query', newQuery => {
+    // 需要进行节流
+    this.$watch('query', debounce(newQuery => {
       this.$emit('query', newQuery)
-    })
+    }, 200))
   }
 }
 </script>
-<style lang="scss">
+<style lang="scss"> 
   @import "../../common/scss/variable.scss";
 
   .search-box {

@@ -5,6 +5,7 @@ import * as getters from './getter'
 import state from './state'
 import mutations from './mutations'
 
+// 插件
 import createLogger from 'vuex/dist/logger'
 
 Vue.use(Vuex)
@@ -17,5 +18,6 @@ export default new Vuex.Store({
   state,
   mutations,
   strict: debug,
+  // 调时插件
   plugins: debug ? [createLogger()] : []
 })

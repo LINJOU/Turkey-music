@@ -15,7 +15,7 @@
             <i class="icon-back"></i>
           </div>
           <h1 class="title" v-html="currentSong.name"></h1>
-          <h2 class="subtitle">- {{currentSong.singer}} -</h2>
+          <h2 class="subtitle" v-html="singerName"></h2>
         </div>
         <div class="middle" 
              @touchstart.prevent="middleTouchStart"
@@ -126,6 +126,9 @@ export default {
     }
   },
   computed: {
+    singerName () {
+      return `- ${this.currentSong.singer} -`
+    },
     playIcon () {
       return this.playing ? 'icon-pause' : 'icon-play'
     },

@@ -24,7 +24,7 @@ export default {
       songs: [],
       day: '',
       updateTime: '',
-      info: []
+      info: ''
     }
   },
   computed: {
@@ -55,7 +55,7 @@ export default {
           this.day = res.day_of_year
           this.updateTime = res.update_time
           this.songs = this._normalizeSongs(res.songlist)
-          this.info[0] = res.topinfo.info
+          this.info = res.topinfo.info
         }
       })
     },
@@ -77,7 +77,6 @@ export default {
 </script>
 <style lang="scss">
   @import "../../common/scss/variable.scss";
-  @import "../../common/scss/mixin.scss";
   .topList {
     position: fixed;
     top: 0;

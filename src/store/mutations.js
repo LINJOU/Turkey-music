@@ -22,8 +22,8 @@ const matutaions = {
   [types.SET_CURRENT_INDEX] (state, flag) {
     state.currentIndex = flag
   },
-  [types.SET_SEARCH_HISTORY] (state, history) {
-    state.history = history
+  [types.SET_SEARCH_HISTORY] (state, searchHistory) {
+    state.searchHistory = searchHistory
   },
   [types.SET_SONGURL] (state, songUrl) {
     state.songUrl = songUrl

@@ -2,9 +2,12 @@
   <scroll class="suggest" 
           :data="result"
           :pullUpLoad="pullUpLoad"
-          @pullingUp="searchMore" >
-    <div class="suggest-list">
-      <div class="suggest-item" v-for="item in result">
+          :berforeScroll="berforeScroll"
+          @pullingUp="searchMore"
+          @beforeScroll="listScroll"
+          ref="suggest" >
+    <ul class="suggest-list">
+      <li @click="selectItem(item)" class="suggest-item" v-for="item in result">
         <div class="singer" v-if="item.type === 'singer'">
           <div class="icon">
             <i class="icon-mine"></i>
@@ -27,14 +30,17 @@
             <p class="singerName" v-html="item.singer"></p>
           </div>
         </div>
-      </div>
+      </li>
       <div class="floor-wrapper">
         <div class="hasMore" v-if="result.length && pullUpFinished">{{pullUpTxt}}</div>
-        <loading title="正在加载..." v-if="!pullUpFinished" class="hasMoreLoading"></loading>
+        <loading title="正在加载更多..." v-if="!pullUpFinished" class="hasMoreLoading"></loading>
       </div>
-    </div>
-    <div class="loading-wrapper" v-show="!result.length">
+    </ul>
+    <div class="loading-wrapper" v-show="hasMore">
       <loading title="正在加载..."></loading>
+    </div>
+    <div v-if="!hasMore && !result.length" class="no-result-wrapper">
+      <no-result title="抱歉，暂无搜索结果"></no-result>
     </div>
   </scroll>
 </template>
@@ -44,6 +50,9 @@ import { ERR_OK } from 'api/config'
 import { createSong } from 'common/js/song'
 import Scroll from 'base/scroll/scroll'
 import Loading from 'base/loading/loading'
+import NoResult from 'base/no-result/no-result'
+import Singer from 'common/js/singer'
+import { mapMutations, mapActions } from 'vuex'
 
 const TYPE_SINGER = 'singer'
 const perpage = 20
@@ -69,6 +78,7 @@ export default {
         threshold: -60
       },
       pullUpFinished: true,
+      berforeScroll: true,
       hasMore: true,
       totalpage: 0
     }
@@ -79,18 +89,22 @@ export default {
     }
   },
   methods: {
+    refresh () {
+      this.$refs.suggest.refresh()
+    },
     _search () {
       if (this.query === '') {
         return
       }
+      // 进行重置
       this.page = 1
+      this.$refs.suggest.scrollTo(0, 0)
       search(this.query, this.page, this.showSinger, perpage).then(res => {
         if (res.code === ERR_OK) {
-          console.log(res.data)
           let song = res.data.song
+          // 向上取整
           this.totalpage = Math.ceil(song.totalnum / song.curnum)
           this.result = this._genResult(res.data)
-          console.log(this.result)
           if (this.totalpage > 1) {
             this.hasMore = true
           } else {
@@ -101,12 +115,11 @@ export default {
     },
     searchMore () {
       this.page++
-      if (this.pullUpFinished && (this.page <= this.totalpage)) {
+      if (this.pullUpFinished && this.hasMore) {
         this.pullUpFinished = false
         setTimeout(() => {
           search(this.query, this.page, this.showSinger, perpage).then(res => {
             if (res.code === ERR_OK) {
-              console.log(res.data)
               if (res.data.song) {
                 this.result = this.result.concat(this._normalizeSongs(res.data.song.list))
               }
@@ -142,15 +155,43 @@ export default {
         }
       })
       return ret
-    }
+    },
+    selectItem (item) {
+      if (item.type === TYPE_SINGER) {
+        const singer = new Singer({
+          id: item.singerid,
+          mid: item.singermid,
+          name: item.singername
+        })
+        this.$router.push({
+          path: `/search/${singer.id}`
+        })
+        this.setSinger(singer)
+      } else {
+        this.insertSong(item)
+      }
+      this.$emit('select')
+    },
+    listScroll () {
+      this.$emit('listScroll')
+    },
+    ...mapMutations({
+      setSinger: 'SET_SINGER'
+    }),
+    ...mapActions([
+      'insertSong'
+    ])
   },
   components: {
     Scroll,
-    Loading
+    Loading,
+    NoResult
   },
   watch: {
     query () {
       this._search()
+      this.hasMore = true
+      this.result = []
     }
   }
 }

@@ -73,7 +73,37 @@ export default new Router({
     },
     {
       path: '/search',
-      component: Search
+      component: Search,
+      children: [
+        {
+          path: ':id',
+          component: SingerDetail,
+          children: [
+            {
+              path: 'musicList',
+              component: MusicList
+            },
+            {
+              path: 'album',
+              component: Album,
+              children: [
+                {
+                  path: 'albumDesc',
+                  component: AlbumDesc
+                }
+              ]
+            },
+            {
+              path: 'mvList',
+              component: MvList
+            },
+            {
+              path: 'desc',
+              component: SingerDesc
+            }
+          ]
+        }
+      ]
     },
     {
       path: '/rank',

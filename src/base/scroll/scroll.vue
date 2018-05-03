@@ -40,6 +40,10 @@
       bounce: {
         type: Boolean,
         default: true
+      },
+      beforeScroll: {
+        type: Boolean,
+        default: false
       }
     },
     mounted () {
@@ -75,6 +79,12 @@
         }
         if (this.pullUpLoad) {
           this._initPullUpLoad()
+        }
+
+        if (this.beforeScroll) {
+          this.scroll.on('beforeScrollStart', () => {
+            this.$emit('beforeScroll')
+          })
         }
       },
       // 代理方法

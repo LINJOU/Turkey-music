@@ -9,7 +9,7 @@ import {getSingerList} from 'api/singer'
 import {ERR_OK} from 'api/config'
 import Singer from 'common/js/singer'
 import Listview from 'base/listview/listview'
-import {mapMutations} from 'vuex'
+import { mapMutations } from 'vuex'
 import { playlistMixin } from 'common/js/mixin'
 
 const HOT_NAME = '热门'
