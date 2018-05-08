@@ -67,7 +67,7 @@
               <i @click="next" class="icon-next"></i>
             </div>
             <div class="icon i-right">
-              <i class="icon icon-not-favorite"></i>
+              <i class="icon" :class="getFavoriteIcon(currentSong)" @click="toggleFavorite(currentSong)"></i>
             </div>
           </div>
         </div>
@@ -88,16 +88,17 @@
             <i @click.stop="togglePlaying" :class="miniIcon" class="icon-mini"></i>
           </progress-circle>
         </div>
-        <div class="control">
+        <div class="control" @click.stop="showPlaylist">
           <i class="icon-playlist"></i>
         </div>
       </div>
     </transition>
+    <playlist ref="playlist"></playlist>
     <audio ref="audio" :src="songUrl" @canplay="ready" @error="error" @timeupdate="updateTime" @ended="end"></audio>
   </div>
 </template>
 <script>
-import { mapGetters, mapMutations } from 'vuex'
+import { mapGetters, mapMutations, mapActions } from 'vuex'
 import animations from 'create-keyframe-animation'
 import Lyric from 'lyric-parser'
 import { prefixStyle } from 'common/js/dom'
@@ -106,12 +107,14 @@ import ProgressBar from 'base/progress-bar/progress-bar'
 import ProgressCircle from 'base/progress-circle/progress-circle'
 import Scroll from 'base/scroll/scroll'
 import { playMode } from 'common/js/config'
-import { shuffle } from 'common/js/util'
+import Playlist from '@/components/playlist/playlist'
+import { playerMixin } from 'common/js/mixin'
 
 const transform = prefixStyle('transform')
 const transitionDuration = prefixStyle('transitionDuration')
 
 export default {
+  mixins: [playerMixin],
   data () {
     return {
       // 播放标志位
@@ -143,18 +146,12 @@ export default {
     disableCls () {
       return this.songReady ? '' : 'disable'
     },
-    iconMode () {
-      return this.mode === playMode.sequence ? 'icon-sequence' : this.mode === playMode.loop ? 'icon-loop' : 'icon-random'
-    },
     ...mapGetters([
       'fullScreen',
-      'playlist',
-      'currentSong',
       'songUrl',
       'playing',
       'currentIndex',
-      'mode',
-      'sequenceList'
+      'songUrl'
     ])
   },
   created () {
@@ -203,6 +200,8 @@ export default {
     // 确保url加载成功
     ready () {
       this.songReady = true
+      // 添加到最近到播放记录
+      this.savePlayHistory(this.currentSong)
     },
     // url加载失败
     error () {
@@ -351,29 +350,6 @@ export default {
         this.currentLyric.seek(currentTime * 1000)
       }
     },
-    // 改变播放状态
-    changeMode () {
-      const mode = (this.mode + 1) % 3
-      this.setPlayMode(mode)
-      let list = []
-      if (mode === playMode.random) {
-        list = shuffle(this.sequenceList)
-      } else {
-        list = this.sequenceList
-      }
-      this.resetCurrentIndex(list)
-      this.setPlayList(list)
-    },
-    // 重置currentIndex
-    resetCurrentIndex (list) {
-      // findIndex() 方法返回传入一个测试条件（函数）符合条件的数组第一个元素位置
-      // 当数组中的元素在测试条件时返回 true 时, findIndex() 返回符合条件的元素的索引位置，之后的值不会再调用执行函数
-      // 如果没有符合条件的元素返回 -1
-      let index = list.findIndex(item => {
-        return item.id === this.currentSong.id
-      })
-      this.setCurrentIndex(index)
-    },
     // 滑动切换cd lyric
     middleTouchStart (e) {
       this.touch.initiated = true
@@ -435,17 +411,22 @@ export default {
       this.$refs.middleL.style.opacity = opacity
       this.$refs.lyricList.$el.style[transitionDuration] = `${ts}ms`
     },
+    showPlaylist () {
+      this.$refs.playlist.show()
+    },
     ...mapMutations({
       setFullScreen: 'SET_FULL_SCREEN',
-      setPlayingState: 'SET_PLAYING_STATE',
-      setCurrentIndex: 'SET_CURRENT_INDEX',
-      setSongUrl: 'SET_SONGURL',
-      setPlayMode: 'SET_PLAY_MODE',
-      setPlayList: 'SET_PLAYLIST'
-    })
+      setSongUrl: 'SET_SONGURL'
+    }),
+    ...mapActions([
+      'savePlayHistory'
+    ])
   },
   watch: {
     currentSong (newSong, oldSong) {
+      if (!newSong.id) {
+        return
+      }
       if (newSong.id === oldSong.id) {
         const percent = this.percent
         this.$refs.audio.currentTime = this.currentSong.duration * percent
@@ -480,7 +461,8 @@ export default {
   components: {
     ProgressBar,
     ProgressCircle,
-    Scroll
+    Scroll,
+    Playlist
   }
 }
 </script>
@@ -759,7 +741,7 @@ export default {
         flex: 0 0 28px;
         width: 30px;
         padding: 0 10px;
-        .icon-play-mini, .icon-pause-mini, .icon-playlist {
+        .icon-play-mini, .icon-pause-mini {
           font-size: 30px;
           color: $color-theme-d;
         }
@@ -768,6 +750,10 @@ export default {
           position: absolute;
           left: 0;
           top: 0;
+        }
+        .icon-playlist {
+          font-size: 30px;
+          color: $color-theme;
         }
       }
     }

@@ -4,8 +4,8 @@
       <ul>
         <li @click="selectItem(song, index)" class="item" v-for="(song, index) in songs">
           <div class="content">
-            <h2 class="name" :class="{active: song.id === currentSong.id}">{{song.name}}</h2>
-            <p class="desc">{{getDesc(song)}}</p>
+            <h2 class="name" :class="{active: song.id === currentSong.id && activeShow}" v-html="song.name"></h2>
+            <p class="desc" v-html="getDesc(song)"></p>
           </div>
         </li>
       </ul>
@@ -19,6 +19,10 @@
       songs: {
         type: Array,
         default: () => []
+      },
+      activeShow: {
+        type: Boolean,
+        default: true
       }
     },
     computed: {

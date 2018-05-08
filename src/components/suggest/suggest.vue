@@ -63,7 +63,7 @@ export default {
       type: String,
       default: ''
     },
-    // 是否显示歌曲
+    // 是否搜索歌手
     showSinger: {
       type: Boolean,
       default: true

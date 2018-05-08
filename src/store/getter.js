@@ -24,3 +24,7 @@ export const songUrl = state => state.songUrl
 export const disc = state => state.disc
 
 export const topList = state => state.topList
+
+export const playHistory = state => state.playHistory
+
+export const favoriteList = state => state.favoriteList

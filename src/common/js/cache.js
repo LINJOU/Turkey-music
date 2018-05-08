@@ -6,6 +6,12 @@ const SEARCH_KEY = '_search_'
 // 定义最大储存长度(确保为最新的历史记录)
 const SEARCH_MAX_LENGTH = 15
 
+const PLAY_KEY = '_play_'
+const PLAY_KEY_LENGTH = 200
+
+const FAVORITE_KEY = '_favorite_'
+const FAVORITE_MAX_LENGTH = 200
+
 function insertArray (arr, val, compare, maxLen) {
   // findIndex()方法返回数组中满足比较器函数的第一个元素的索引
   const index = arr.findIndex(compare)
@@ -58,4 +64,43 @@ export function deleteSearch (query) {
 export function clearSearch () {
   storage.remove(SEARCH_KEY)
   return []
+}
+
+// 缓存最近播放历史
+export function savePlay (song) {
+  let songs = storage.get(PLAY_KEY, [])
+  insertArray(songs, song, item => {
+    return item.id === song.id
+  }, PLAY_KEY_LENGTH)
+  storage.set(PLAY_KEY, songs)
+  return songs
+}
+
+// 读取最近播放历史
+export function loadPlay () {
+  return storage.get(PLAY_KEY, [])
+}
+
+// 保存到收藏列表
+export function saveFavorite (song) {
+  let songs = storage.get(FAVORITE_KEY, [])
+  insertArray(songs, song, item => {
+    return song.id === item.id
+  }, FAVORITE_MAX_LENGTH)
+  storage.set(FAVORITE_KEY, songs)
+  return songs
+}
+// 从收藏列表移除
+export function deleteFavorite (song) {
+  let songs = storage.get(FAVORITE_KEY, [])
+  deleteFromArray(songs, item => {
+    return song.id === item.id
+  })
+  storage.set(FAVORITE_KEY, songs)
+  return songs
+}
+
+// 加载读取列表
+export function loadFavorite () {
+  return storage.get(FAVORITE_KEY, [])
 }

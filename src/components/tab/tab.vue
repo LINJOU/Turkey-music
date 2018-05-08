@@ -1,6 +1,6 @@
 <template>
   <div class="tab">
-    <router-link class="tab-item lf" to="/user">
+    <router-link class="tab-item lf" to="/userCenter">
       <i class="tab-link icon-mine"></i>
     </router-link>
     <router-link class="tab-item" to="/recommend">推荐</router-link>

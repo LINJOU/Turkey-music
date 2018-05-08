@@ -20,3 +20,7 @@ export const SET_SONGURL = 'SET_SONGURL'
 export const SET_DISC = 'SET_DISC'
 
 export const SET_TOP_LIST = 'SET_TOP_LIST'
+
+export const SET_PLAYHISTORY = 'SET_PLAYHISTORY'
+
+export const SET_FAVORITELIST = 'types.SET_FAVORITELIST'
