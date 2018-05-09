@@ -5,9 +5,28 @@
             :bgImage="bgImage"
             :listenCount="listenCount"
             :songs="songs"
-            :day="day"
-            :updateTime="updateTime"
-            :info="info"></list>
+            :tabData="tabData"
+            :info="topinfo.info">
+        <div slot="info" class="infoCentent">
+          <div v-if="topinfo.UpdateType === '1'">
+            <p class="time">
+              <span class="txt">{{topinfo.ListName}}</span>
+              <span class="day">第{{data.day_of_year}}天</span>
+            </p>
+            <p class="updateTime">
+              <span>{{data.update_time}}</span> 更新
+            </p>
+          </div>
+          <div v-if="topinfo.UpdateType === '0'">
+            <p class="time">
+              <span class="week">第{{getWeek(this.data.date)}}周</span>
+            </p>
+            <p class="updateTime">
+              <span>{{data.update_time}}</span> 更新
+            </p>
+          </div>
+        </div>
+      </list>
     </div>
   </transition>
 </template>
@@ -22,9 +41,12 @@ export default {
   data () {
     return {
       songs: [],
-      day: '',
-      updateTime: '',
-      info: ''
+      data: {},
+      tabData: [
+        {name: '歌曲'},
+        {name: '详情'}
+      ],
+      topinfo: {}
     }
   },
   computed: {
@@ -52,10 +74,9 @@ export default {
       }
       getMusicList(this.topList.id).then(res => {
         if (res.code === ERR_OK) {
-          this.day = res.day_of_year
-          this.updateTime = res.update_time
+          this.data = res
+          this.topinfo = res.topinfo
           this.songs = this._normalizeSongs(res.songlist)
-          this.info = res.topinfo.info
         }
       })
     },
@@ -68,6 +89,10 @@ export default {
         }
       })
       return ret
+    },
+    getWeek (date) {
+      let arr = date.split('_')
+      return arr[1]
     }
   },
   components: {
@@ -83,6 +108,27 @@ export default {
     bottom: 0;
     left: 0;
     right: 0;
+    .infoCentent {
+      font-size: 0;
+      color: $color-text;
+      .time {
+        font-size: $font-size-medium-x;
+        margin-bottom: 8px;
+        .txt {
+          padding-right: 5px;
+        }
+        .week {
+          padding: 2px 10px;
+          line-height: 24px;
+          height: 16px;
+          border: 1px solid $color-text;
+          border-radius: 8px;
+        }
+      }
+      .updateTime {
+        font-size: $font-size-small;
+      }
+    }
   }
   .move-enter-active,
   .move-leave-active {

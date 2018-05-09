@@ -1,15 +1,22 @@
 <template>
-  <div class="detail">
+  <div class="detail" ref="detail">
     <p class="infoText" v-html="info"></p>
   </div>
 </template>
 <script>
+const titleHeight = 65
+const tabHeight = 44
+
 export default {
   props: {
     info: {
       type: String,
       default: ''
     }
+  },
+  mounted () {
+    this.clientHeight = document.documentElement.clientHeight || document.body.clientHeight
+    this.$refs.detail.style.minHeight = `${this.clientHeight - titleHeight - tabHeight}px`
   }
 }
 </script>
@@ -17,9 +24,9 @@ export default {
   @import "../../common/scss/variable.scss";
   .detail {
     width: 100%;
-    min-height: 100%;
     padding: 16px;
     box-sizing: border-box;
+    background: $color-bg;
     .infoText {
       line-height: 24px;
       white-space: normal;

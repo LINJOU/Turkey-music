@@ -8,6 +8,7 @@
             <div class="icon">
               <img width="100" height="100" v-lazy="item.picUrl">
               <span class="listenCount">{{normalizeCount(item.listenCount)}}</span>
+              <i class="icon-play"></i>
             </div>
             <ul class="songlist">
               <li class="song" v-for="(song, index) in item.songList">
@@ -119,7 +120,14 @@ export default {
           .listenCount {
             position: absolute;
             top: 80px;
-            left: 10px;
+            left: 5px;
+            font-size: $font-size-small;
+            color: $color-text-ll;
+          }
+          .icon-play {
+            position: absolute;
+            top: 80px;
+            right: 8px;
             font-size: $font-size-small;
             color: $color-text-ll;
           }

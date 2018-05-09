@@ -1,6 +1,6 @@
 <template>
-  <scroll class="listItem" ref="listItem" :probeType="probeType" :listenScroll="listenScroll" :data="data">
-    <div class="listItemContent">
+  <scroll class="listItem" ref="listItem" :probeType="probeType" :listenScroll="listenScroll" :data="data" @scroll="scroll">
+    <div class="listItemContent" ref="listItemContent">
       <slot></slot>
     </div>
   </scroll>
@@ -8,7 +8,15 @@
 <script>
 import Scroll from 'base/scroll/scroll'
 
+const titleHeight = 65
+const tabHeight = 44
+
 export default {
+  data () {
+    return {
+      scrollY: 0
+    }
+  },
   props: {
     data: {
       type: Array,
@@ -19,12 +27,18 @@ export default {
     this.probeType = 3
     this.listenScroll = true
   },
+  mounted () {
+    this.clientHeight = document.documentElement.clientHeight || document.body.clientHeight
+    this.clientWidth = document.documentElement.clientWidth || document.body.clientWidth
+    this.$refs.listItem.$el.style.width = `${this.clientWidth}px`
+    this.$refs.listItemContent.style.minHeight = `${this.clientHeight - titleHeight - tabHeight}px`
+  },
   methods: {
-    enable () {
-      this.$refs.listItem && this.$refs.listItem.enable()
+    scroll (pos) {
+      this.$emit('scroll', Math.round(pos.y))
     },
-    disable () {
-      this.$refs.listItem && this.$refs.listItem.disable()
+    scrollTo (...arg) {
+      this.$refs.listItem.scrollTo(...arg)
     }
   },
   components: {
@@ -36,10 +50,12 @@ export default {
   @import "../../common/scss/variable.scss";
   .listItem {
     display: inline-block;
-    width: 100%;
     height: 100%;
+    vertical-align: top;
     background: $color-bg;
-    overflow: hidden;
+    .listItemContent {
+      width: 100%;
+    }
   }
 </style>
 

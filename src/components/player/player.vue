@@ -38,6 +38,9 @@
               <div v-if="currentLyric">
                 <p class="text" :class="{'current': currentLineNum === index}" ref="lyricLine" v-for="(line, index) in currentLyric.lines">{{line.txt}}</p>
               </div>
+              <div v-if="noLyricShow">
+                <p class="text no-lyric">此歌曲为没有填词的纯音乐，请您欣赏</p>
+              </div>
             </div>
           </scroll>
         </div>
@@ -80,7 +83,8 @@
         </div>
         <div class="text">
           <h2 class="name" v-html="currentSong.name"></h2>
-          <p class="desc" v-html="currentSong.singer"></p>
+          <p class="desc" v-html="currentSong.singer" v-if="lyricShow"></p>
+          <p class="lyric" v-else>{{playingLyric}}</p>
         </div>
         <div class="control">
           <progress-circle :radius="radius" :percent="percent">
@@ -125,7 +129,8 @@ export default {
       currentLyric: null,
       currentLineNum: 0,
       currentShow: 'cd',
-      playingLyric: ''
+      playingLyric: '',
+      noLyricShow: false
     }
   },
   computed: {
@@ -141,6 +146,13 @@ export default {
     cdCls () {
       return this.playing ? 'play' : 'play pause'
       // ****注意暂停要用play pause 不然不回原地暂停
+    },
+    // 小播放器显示歌词
+    lyricShow () {
+      if (this.playingLyric) {
+        return !this.playing
+      }
+      return true
     },
     // 防止频繁点击
     disableCls () {
@@ -302,6 +314,9 @@ export default {
     getLyric () {
       this.currentSong.getLyric().then(lyric => {
         this.currentLyric = new Lyric(lyric, this.handleLyric)
+        if (!this.currentLyric.curNum) {
+          this.noLyricShow = true
+        }
         if (this.playing) {
           // 播放歌词
           this.currentLyric.play()
@@ -431,6 +446,8 @@ export default {
         const percent = this.percent
         this.$refs.audio.currentTime = this.currentSong.duration * percent
       } else {
+        this.playingLyric = ''
+        this.noLyricShow = false
         if (this.currentLyric) {
           this.currentLyric.stop()
         }
@@ -491,7 +508,8 @@ export default {
       }
       .top {
         position: relative;
-        margin-bottom: 25px;
+        padding-top: 10px;
+        margin-bottom: 15px;
         .back {
           position: absolute;
           top: 8px;
@@ -591,6 +609,9 @@ export default {
               font-size: $font-size-medium;
               &.current {
                 color: $color-text;
+              }
+              &.no-lyric {
+                margin-top: 50%;
               }
             }
           }
@@ -735,6 +756,11 @@ export default {
           @include no-wrap();
           font-size: $font-size-small;
           color: $color-text-l;
+        }
+        .lyric {
+          @include no-wrap();
+          font-size: $font-size-small;
+          color: $color-text-l;          
         }
       }
       .control {
